@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m py_compile src/ingestion/read_upload.py src/ingestion/detect_format.py src/ingestion/profile_schema.py src/mapping/canonical_schema.py src/mapping/llm_schema_mapper.py src/mapping/mapping_validator.py src/mapping/apply_mapping.py)",
+      "Bash(python3 -m py_compile src/ingestion/read_upload.py src/ingestion/detect_format.py src/ingestion/profile_schema.py src/mapping/canonical_schema.py src/mapping/llm_schema_mapper.py src/mapping/mapping_validator.py src/mapping/apply_mapping.py)",
+      "Bash(python3 -m py_compile src/normalization/normalize_claims.py src/normalization/normalize_policies.py src/normalization/normalize_customers.py src/normalization/normalize_vehicles.py src/normalization/normalize_providers.py src/normalization/normalize_documents.py src/features/build_features.py src/rules/catalog_rules.py src/rules/fraud_rules.py src/export/export_rules_scored_claims.py data/synthetic/generate_synthetic_data.py)",
+      "Bash(python3 -m py_compile src/pipeline/build_persona1_dataset.py)",
+      "Bash(pip3 install *)",
+      "Bash(python3 data/synthetic/generate_synthetic_data.py)",
+      "Bash(python3 -c \"import pandas as pd; df=pd.read_csv\\('/Users/josuepiedralopez/Desktop/Proyectos/HackathonIA/fraudia-claims/data/processed/rules_scored_claims.csv'\\); print\\(f'Rows: {len\\(df\\)}, Cols: {len\\(df.columns\\)}'\\); print\\('nivel_reglas:', df['nivel_reglas'].value_counts\\(\\).to_dict\\(\\)\\)\")"
+    ]
+  }
+}

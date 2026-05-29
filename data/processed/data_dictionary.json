@@ -1,0 +1,474 @@
+[
+  {
+    "name": "id_siniestro",
+    "type": "string",
+    "description": "Unique identifier for the insurance claim (siniestro).",
+    "required": true,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "id_poliza",
+    "type": "string",
+    "description": "Unique identifier for the insurance policy.",
+    "required": true,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "id_asegurado",
+    "type": "string",
+    "description": "Unique identifier for the insured person (asegurado).",
+    "required": true,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "id_vehiculo",
+    "type": "string",
+    "description": "Unique identifier for the insured vehicle (if applicable).",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "id_proveedor",
+    "type": "string",
+    "description": "Unique identifier for the service provider (taller, médico, etc.).",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "id_conductor",
+    "type": "string",
+    "description": "Unique identifier for the driver at the time of the incident.",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "ramo",
+    "type": "string",
+    "description": "Insurance branch/line of business (e.g. Autos, Hogar, Vida, Salud).",
+    "required": true,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "cobertura",
+    "type": "string",
+    "description": "Specific coverage type (e.g. Pérdida Total, Robo, Colisión).",
+    "required": true,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "estado",
+    "type": "string",
+    "description": "Current state of the claim (e.g. Abierto, Cerrado, En investigación).",
+    "required": true,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "sucursal",
+    "type": "string",
+    "description": "Branch office handling the claim.",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "ciudad",
+    "type": "string",
+    "description": "City where the incident occurred.",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "provincia",
+    "type": "string",
+    "description": "Province or state where the incident occurred.",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "fecha_ocurrencia",
+    "type": "date",
+    "description": "Date when the insured event occurred.",
+    "required": true,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "fecha_reporte",
+    "type": "date",
+    "description": "Date when the claim was reported to the insurer.",
+    "required": true,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "fecha_inicio_poliza",
+    "type": "date",
+    "description": "Policy effective start date.",
+    "required": true,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "fecha_fin_poliza",
+    "type": "date",
+    "description": "Policy effective end date / expiration date.",
+    "required": true,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "monto_reclamado",
+    "type": "numeric",
+    "description": "Amount claimed by the insured.",
+    "required": true,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "monto_estimado",
+    "type": "numeric",
+    "description": "Amount estimated by the adjuster or insurer.",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "monto_pagado",
+    "type": "numeric",
+    "description": "Amount actually paid out on the claim.",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "suma_asegurada",
+    "type": "numeric",
+    "description": "Total insured sum (maximum coverage amount).",
+    "required": true,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "deducible",
+    "type": "numeric",
+    "description": "Deductible amount applicable to the claim.",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "descripcion",
+    "type": "string",
+    "description": "Free-text narrative description of the incident.",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "documentos_completos",
+    "type": "boolean",
+    "description": "Flag indicating whether all required documents were submitted.",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "etiqueta_fraude_simulada",
+    "type": "boolean",
+    "description": "Simulated fraud label for synthetic/training data (1=fraud, 0=legitimate).",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "source_file",
+    "type": "string",
+    "description": "Name of the source file from which this record originated.",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "mapping_confidence",
+    "type": "numeric",
+    "description": "LLM-assigned confidence score for the schema mapping (0.0-1.0).",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "data_quality_score",
+    "type": "numeric",
+    "description": "Computed data quality score for this record (0.0-1.0).",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "limitacion_registro",
+    "type": "string",
+    "description": "Any limitation or data quality note for this record.",
+    "required": false,
+    "source": "canonical_schema",
+    "category": "canonical"
+  },
+  {
+    "name": "dias_desde_inicio_poliza",
+    "type": "numeric",
+    "description": "Días entre inicio de póliza y ocurrencia del siniestro.",
+    "required": false,
+    "source": "computed",
+    "category": "feature_temporal"
+  },
+  {
+    "name": "dias_desde_fin_poliza",
+    "type": "numeric",
+    "description": "Días entre ocurrencia del siniestro y fin de póliza (negativo si ocurrió después del vencimiento).",
+    "required": false,
+    "source": "computed",
+    "category": "feature_temporal"
+  },
+  {
+    "name": "dias_entre_ocurrencia_reporte",
+    "type": "numeric",
+    "description": "Días transcurridos entre la ocurrencia del siniestro y su reporte a la aseguradora.",
+    "required": false,
+    "source": "computed",
+    "category": "feature_temporal"
+  },
+  {
+    "name": "ratio_monto_suma_asegurada",
+    "type": "numeric",
+    "description": "Razón entre monto reclamado y suma asegurada. Valores >= 0.9 son atípicos.",
+    "required": false,
+    "source": "computed",
+    "category": "feature_financiero"
+  },
+  {
+    "name": "ratio_monto_estimado",
+    "type": "numeric",
+    "description": "Razón entre monto reclamado y monto estimado por el ajustador.",
+    "required": false,
+    "source": "computed",
+    "category": "feature_financiero"
+  },
+  {
+    "name": "diferencia_monto_reclamado_estimado",
+    "type": "numeric",
+    "description": "Diferencia absoluta entre monto reclamado y estimado.",
+    "required": false,
+    "source": "computed",
+    "category": "feature_financiero"
+  },
+  {
+    "name": "historial_siniestros_asegurado",
+    "type": "numeric",
+    "description": "Número total de siniestros del asegurado en el dataset analizado.",
+    "required": false,
+    "source": "computed",
+    "category": "feature_frecuencia"
+  },
+  {
+    "name": "historial_siniestros_vehiculo",
+    "type": "numeric",
+    "description": "Número total de siniestros del vehículo en el dataset.",
+    "required": false,
+    "source": "computed",
+    "category": "feature_frecuencia"
+  },
+  {
+    "name": "historial_siniestros_conductor",
+    "type": "numeric",
+    "description": "Número total de siniestros del conductor en el dataset.",
+    "required": false,
+    "source": "computed",
+    "category": "feature_frecuencia"
+  },
+  {
+    "name": "frecuencia_proveedor",
+    "type": "numeric",
+    "description": "Número total de siniestros asociados al proveedor de servicios.",
+    "required": false,
+    "source": "computed",
+    "category": "feature_proveedor"
+  },
+  {
+    "name": "flag_borde_vigencia",
+    "type": "integer",
+    "description": "Indicador de regla RF-05: Siniestro extremo al borde de vigencia. Valor 1 = regla activada. Puntaje: 8 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_robo_denuncia_tardia",
+    "type": "integer",
+    "description": "Indicador de regla RF-06: Demora atípica en denuncia de robo. Valor 1 = regla activada. Puntaje: 8 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_reporte_tardio",
+    "type": "integer",
+    "description": "Indicador de regla RF-TEMP-01: Reporte tardío. Valor 1 = regla activada. Puntaje: 5 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_monto_atipico",
+    "type": "integer",
+    "description": "Indicador de regla RF-MONTO-01: Monto reclamado atípico. Valor 1 = regla activada. Puntaje: 5 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_documentos_incompletos",
+    "type": "integer",
+    "description": "Indicador de regla RF-DOC-01: Documentos incompletos. Valor 1 = regla activada. Puntaje: 4 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_documentos_inconsistentes",
+    "type": "integer",
+    "description": "Indicador de regla RF-DOC-02: Documentos inconsistentes. Valor 1 = regla activada. Puntaje: 10 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_proveedor_recurrente",
+    "type": "integer",
+    "description": "Indicador de regla RF-PROV-01: Proveedor recurrente. Valor 1 = regla activada. Puntaje: 5 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_proveedor_lista_restrictiva",
+    "type": "integer",
+    "description": "Indicador de regla RF-PROV-02: Proveedor en lista restrictiva. Valor 1 = regla activada. Puntaje: 10 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_alta_frecuencia_asegurado",
+    "type": "integer",
+    "description": "Indicador de regla RF-FREC-01: Alta frecuencia asegurado. Valor 1 = regla activada. Puntaje: 8 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_alta_frecuencia_vehiculo",
+    "type": "integer",
+    "description": "Indicador de regla RF-FREC-02: Alta frecuencia vehículo. Valor 1 = regla activada. Puntaje: 6 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_alta_frecuencia_conductor",
+    "type": "integer",
+    "description": "Indicador de regla RF-FREC-03: Alta frecuencia conductor. Valor 1 = regla activada. Puntaje: 8 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_sin_tercero_identificado",
+    "type": "integer",
+    "description": "Indicador de regla RF-DIN-01: Siniestro severo sin tercero identificado. Valor 1 = regla activada. Puntaje: 6 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_dinamica_sospechosa",
+    "type": "integer",
+    "description": "Indicador de regla RF-04: Dinámica del accidente físicamente imposible. Valor 1 = regla activada. Puntaje: 10 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_narrativa_clonada",
+    "type": "integer",
+    "description": "Indicador de regla RF-07: Narrativa idéntica o clonada. Valor 1 = regla activada. Puntaje: 8 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "flag_cobertura_robo_total",
+    "type": "integer",
+    "description": "Indicador de regla RF-01: Cobertura Pérdida Total por Robo. Valor 1 = regla activada. Puntaje: 10 pts.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "flag_regla"
+  },
+  {
+    "name": "score_reglas",
+    "type": "integer",
+    "description": "Puntaje total de riesgo basado en reglas (0-100). Suma de puntos de todas las reglas activadas.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "score"
+  },
+  {
+    "name": "nivel_reglas",
+    "type": "string",
+    "description": "Nivel de riesgo: Verde (score<20), Amarillo (20-39), Rojo (>=40).",
+    "required": false,
+    "source": "rule_engine",
+    "category": "score"
+  },
+  {
+    "name": "reglas_activadas",
+    "type": "string",
+    "description": "Códigos de las reglas activadas para este siniestro, separados por coma.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "score"
+  },
+  {
+    "name": "alertas_reglas",
+    "type": "string",
+    "description": "Descripciones de las alertas generadas por cada regla activada.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "score"
+  },
+  {
+    "name": "explicacion_reglas",
+    "type": "string",
+    "description": "Explicación en lenguaje natural del puntaje y nivel de riesgo asignado.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "score"
+  },
+  {
+    "name": "mensaje_etico_reglas",
+    "type": "string",
+    "description": "Aviso ético recordando que el sistema es de apoyo y no reemplaza juicio humano.",
+    "required": false,
+    "source": "rule_engine",
+    "category": "metadata"
+  }
+]
