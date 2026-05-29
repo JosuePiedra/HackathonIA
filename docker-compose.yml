@@ -7,9 +7,9 @@
 #
 # Servicios:
 #   init-db         → aplica migraciones SQL en Supabase (solo si las tablas no existen)
-#   fraud-detector  → FastAPI: scoring API                 → localhost:8001
+#   fraud-detector  → FastAPI: scoring API                 → 127.0.0.1:8001 (interno)
 #   fraud-listener  → Python: escucha Supabase realtime + pipeline ML
-#   sentinel        → Next.js: dashboard antifraude        → localhost:3000
+#   sentinel        → Next.js: dashboard antifraude        → 127.0.0.1:8093 (nginx → :80)
 # ============================================================
 
 # Variables compartidas entre los servicios Python
@@ -54,7 +54,7 @@ services:
     image: fraud-detector:latest
     container_name: fraud-detector
     ports:
-      - "8001:8000"
+      - "127.0.0.1:8001:8000"
     environment:
       <<: *python-env
     volumes:
@@ -111,7 +111,7 @@ services:
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
     container_name: sentinel
     ports:
-      - "3000:3000"
+      - "127.0.0.1:8093:3000"
     environment:
       NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
