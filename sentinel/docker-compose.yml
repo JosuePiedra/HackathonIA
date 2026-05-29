@@ -1,0 +1,22 @@
+services:
+  sentinel:
+    build:
+      context: .
+      # Las NEXT_PUBLIC_* deben estar en build time (se inlinean en el cliente).
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    container_name: sentinel
+    ports:
+      - "3000:3000"
+    environment:
+      # Runtime (servidor): el agente usa la key del proveedor elegido.
+      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
+      # También disponibles en runtime (la app las lee del entorno).
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    restart: unless-stopped
