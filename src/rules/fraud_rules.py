@@ -8,10 +8,10 @@ import pandas as pd
 import numpy as np
 from typing import Tuple, List
 
-from .catalog_rules import RULES
+from .catalog_rules import RULES, CRITICAL_RULE_CODES
 
 
-# Mapping from flag column name to rule code and points
+# Mapping from flag column name to (rule_code, points)
 FLAG_TO_RULE = {
     "flag_borde_vigencia":              ("RF-05", RULES["RF-05"]["points"]),
     "flag_robo_denuncia_tardia":        ("RF-06", RULES["RF-06"]["points"]),
@@ -20,11 +20,11 @@ FLAG_TO_RULE = {
     "flag_documentos_incompletos":      ("RF-DOC-01", RULES["RF-DOC-01"]["points"]),
     "flag_documentos_inconsistentes":   ("RF-DOC-02", RULES["RF-DOC-02"]["points"]),
     "flag_proveedor_recurrente":        ("RF-PROV-01", RULES["RF-PROV-01"]["points"]),
-    "flag_proveedor_lista_restrictiva": ("RF-PROV-02", RULES["RF-PROV-02"]["points"]),
+    # RF-PROV-02 merged into RF-03 (lista restrictiva) in new catalog
+    "flag_proveedor_lista_restrictiva": ("RF-03", RULES["RF-03"]["points"]),
     "flag_alta_frecuencia_asegurado":   ("RF-FREC-01", RULES["RF-FREC-01"]["points"]),
     "flag_alta_frecuencia_vehiculo":    ("RF-FREC-02", RULES["RF-FREC-02"]["points"]),
     "flag_alta_frecuencia_conductor":   ("RF-FREC-03", RULES["RF-FREC-03"]["points"]),
-    "flag_sin_tercero_identificado":    ("RF-DIN-01", RULES["RF-DIN-01"]["points"]),
     "flag_dinamica_sospechosa":         ("RF-04", RULES["RF-04"]["points"]),
     "flag_narrativa_clonada":           ("RF-07", RULES["RF-07"]["points"]),
     "flag_cobertura_robo_total":        ("RF-01", RULES["RF-01"]["points"]),
@@ -236,15 +236,17 @@ def apply_rule_scores(df: pd.DataFrame) -> pd.DataFrame:
         return min(total, 100)
 
     df["score_reglas"] = df.apply(_compute_score, axis=1)
+    df["score_heuristico"] = df["score_reglas"]
 
     def _nivel(score):
-        if score >= 40:
+        if score > 75:
             return "Rojo"
-        if score >= 20:
+        if score > 40:
             return "Amarillo"
         return "Verde"
 
     df["nivel_reglas"] = df["score_reglas"].apply(_nivel)
+    df["nivel_riesgo"] = df["nivel_reglas"]
 
     return df
 
@@ -365,13 +367,34 @@ def apply_fraud_rules(df: pd.DataFrame) -> pd.DataFrame:
     df["alertas_reglas"] = alertas_list
     df["explicacion_reglas"] = explicaciones_list
 
-    # Ethical disclaimer column
-    df["mensaje_etico_reglas"] = (
-        "AVISO: Este puntaje es generado por un sistema automatizado de detección de "
-        "patrones de riesgo basado en reglas estadísticas. No constituye una acusación "
-        "de fraude. Toda decisión final debe ser tomada por un profesional calificado "
-        "tras una investigación completa e imparcial del caso."
+    # Reglas críticas activadas (comma-separated codes)
+    def _criticas(reglas_str: str) -> str:
+        codes = [r.strip() for r in str(reglas_str).split(",") if r.strip()]
+        return ", ".join(c for c in codes if c in CRITICAL_RULE_CODES)
+
+    df["reglas_criticas_activadas"] = df["reglas_activadas"].apply(_criticas)
+
+    # Accion sugerida
+    def _accion(row) -> str:
+        criticas = str(row.get("reglas_criticas_activadas", "") or "")
+        score = _safe_int(row.get("score_heuristico", 0))
+        if criticas.strip() and any(c in criticas for c in ("RF-02", "RF-03", "RF-04")):
+            return "Escalar a revisión antifraude especializada."
+        if score > 75 or criticas.strip():
+            return "Escalar a revisión antifraude especializada."
+        if score > 40:
+            return "Escalar a revisión documental."
+        return "Continuar flujo normal."
+
+    df["accion_sugerida"] = df.apply(_accion, axis=1)
+
+    df["mensaje_ia"] = (
+        "Esta evaluación es una alerta para revisión humana, "
+        "no una acusación automática ni una decisión de rechazo."
     )
+
+    # Keep legacy column for backward compat
+    df["mensaje_etico_reglas"] = df["mensaje_ia"]
 
     nivel_dist = df["nivel_reglas"].value_counts().to_dict()
     print(f"[INFO] apply_fraud_rules: score distribution — {nivel_dist}")
