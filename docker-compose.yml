@@ -1,0 +1,26 @@
+services:
+  fraud-detector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: fraud-detector:latest
+    container_name: fraud-detector
+    ports:
+      - "8001:8000"
+    env_file:
+      - .env
+    environment:
+      MODEL_DIR: /app
+    volumes:
+      # Montar artefactos desde el host para actualizarlos sin rebuild
+      - ./xgb_fraude.json:/app/xgb_fraude.json:ro
+      - ./model_metadata.json:/app/model_metadata.json:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
