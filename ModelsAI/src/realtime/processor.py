@@ -24,14 +24,15 @@ def process_siniestro(id_siniestro: str, client=None) -> Dict[str, Any]:
     Run the full pipeline for one siniestro:
       1. Calculate + upsert variable_riesgo
       2. Evaluate rules + upsert alerta_regla
-      3. Calculate + upsert score_siniestro
+      3. Calculate + upsert score_siniestro (heuristic fields)
+      4. Run ML model + update score_siniestro (prediccion_ml, probabilidad_ml, score_final)
 
     Args:
         id_siniestro: Primary key of the siniestro to process.
         client: Optional Supabase client (shared across calls).
 
     Returns:
-        Dict with variable_riesgo, alertas (count), and score summary.
+        Dict with variable_riesgo, alertas count, and final score summary.
     """
     if client is None:
         from src.persistence.supabase_client import get_client
@@ -42,16 +43,20 @@ def process_siniestro(id_siniestro: str, client=None) -> Dict[str, Any]:
     from src.realtime.process_features import run as run_features
     from src.realtime.process_rules import run as run_rules
     from src.realtime.process_score import run as run_score
+    from src.realtime.process_ml import run as run_ml
 
     vr = run_features(id_siniestro, client)
     alertas = run_rules(id_siniestro, client)
     score = run_score(id_siniestro, client)
+    ml = run_ml(id_siniestro, client)
 
     print(
         f"[processor] Done: {id_siniestro} | "
         f"alertas={len(alertas)} | "
-        f"score={score['score_heuristico']} | "
-        f"nivel={score['nivel_riesgo']}"
+        f"score_heuristico={score['score_heuristico']} | "
+        f"score_final={ml['score_final']} | "
+        f"prediccion_ml={ml['prediccion_ml']} | "
+        f"nivel={ml['nivel_riesgo']}"
     )
 
     return {
@@ -59,8 +64,11 @@ def process_siniestro(id_siniestro: str, client=None) -> Dict[str, Any]:
         "variable_riesgo": vr,
         "alertas_count": len(alertas),
         "score_heuristico": score["score_heuristico"],
-        "nivel_riesgo": score["nivel_riesgo"],
-        "accion_sugerida": score["accion_sugerida"],
+        "prediccion_ml": ml["prediccion_ml"],
+        "probabilidad_ml": ml["probabilidad_ml"],
+        "score_final": ml["score_final"],
+        "nivel_riesgo": ml["nivel_riesgo"],
+        "accion_sugerida": ml["accion_sugerida"],
     }
 
 
