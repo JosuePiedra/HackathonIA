@@ -14,6 +14,9 @@ eggs/
 .eggs/
 lib/
 lib64/
+# Don't ignore sentinel Next.js lib folder
+!sentinel/lib/
+!sentinel/lib/**
 parts/
 sdist/
 var/
