@@ -72,7 +72,7 @@ export function SiniestroForm({ initial, busy, onSubmit, onCancel }: SiniestroFo
 
   const num = (v: string) => (v === "" ? 0 : Number(v));
 
-  const valid = form.id_siniestro.trim() && form.ramo.trim() && form.ciudad.trim();
+  const valid = form.id_siniestro.trim() && (form.ramo ?? "").trim() && (form.ciudad ?? "").trim();
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,19 +94,19 @@ export function SiniestroForm({ initial, busy, onSubmit, onCancel }: SiniestroFo
           />
         </Field>
         <Field label="ID Póliza">
-          <input style={inputStyle} value={form.id_poliza} onChange={(e) => set("id_poliza", e.target.value)} />
+          <input style={inputStyle} value={form.id_poliza ?? ""} onChange={(e) => set("id_poliza", e.target.value)} />
         </Field>
         <Field label="ID Asegurado">
-          <input style={inputStyle} value={form.id_asegurado} onChange={(e) => set("id_asegurado", e.target.value)} />
+          <input style={inputStyle} value={form.id_asegurado ?? ""} onChange={(e) => set("id_asegurado", e.target.value)} />
         </Field>
         <Field label="ID Vehículo">
-          <input style={inputStyle} value={form.id_vehiculo} onChange={(e) => set("id_vehiculo", e.target.value)} />
+          <input style={inputStyle} value={form.id_vehiculo ?? ""} onChange={(e) => set("id_vehiculo", e.target.value)} />
         </Field>
         <Field label="ID Proveedor">
-          <input style={inputStyle} value={form.id_proveedor} onChange={(e) => set("id_proveedor", e.target.value)} />
+          <input style={inputStyle} value={form.id_proveedor ?? ""} onChange={(e) => set("id_proveedor", e.target.value)} />
         </Field>
         <Field label="Ramo *">
-          <select style={inputStyle} value={form.ramo} onChange={(e) => set("ramo", e.target.value)}>
+          <select style={inputStyle} value={form.ramo ?? ""} onChange={(e) => set("ramo", e.target.value)}>
             {RAMOS.map((r) => (
               <option key={r} value={r}>
                 {r}
@@ -115,16 +115,16 @@ export function SiniestroForm({ initial, busy, onSubmit, onCancel }: SiniestroFo
           </select>
         </Field>
         <Field label="Cobertura">
-          <input style={inputStyle} value={form.cobertura} onChange={(e) => set("cobertura", e.target.value)} />
+          <input style={inputStyle} value={form.cobertura ?? ""} onChange={(e) => set("cobertura", e.target.value)} />
         </Field>
         <Field label="Ciudad *">
-          <input style={inputStyle} value={form.ciudad} onChange={(e) => set("ciudad", e.target.value)} />
+          <input style={inputStyle} value={form.ciudad ?? ""} onChange={(e) => set("ciudad", e.target.value)} />
         </Field>
         <Field label="Fecha ocurrencia">
-          <input type="date" style={inputStyle} value={form.fecha_ocurrencia} onChange={(e) => set("fecha_ocurrencia", e.target.value)} />
+          <input type="date" style={inputStyle} value={form.fecha_ocurrencia ?? ""} onChange={(e) => set("fecha_ocurrencia", e.target.value)} />
         </Field>
         <Field label="Fecha reporte">
-          <input type="date" style={inputStyle} value={form.fecha_reporte} onChange={(e) => set("fecha_reporte", e.target.value)} />
+          <input type="date" style={inputStyle} value={form.fecha_reporte ?? ""} onChange={(e) => set("fecha_reporte", e.target.value)} />
         </Field>
         <Field label="Monto reclamado">
           <input type="number" style={inputStyle} value={form.monto_reclamado} onChange={(e) => set("monto_reclamado", num(e.target.value))} />
@@ -136,7 +136,7 @@ export function SiniestroForm({ initial, busy, onSubmit, onCancel }: SiniestroFo
           <input type="number" style={inputStyle} value={form.monto_pagado} onChange={(e) => set("monto_pagado", num(e.target.value))} />
         </Field>
         <Field label="Estado">
-          <select style={inputStyle} value={form.estado} onChange={(e) => set("estado", e.target.value)}>
+          <select style={inputStyle} value={form.estado ?? ""} onChange={(e) => set("estado", e.target.value)}>
             {ESTADOS.map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -149,7 +149,7 @@ export function SiniestroForm({ initial, busy, onSubmit, onCancel }: SiniestroFo
       <Field label="Descripción">
         <textarea
           style={{ ...inputStyle, minHeight: 70, resize: "vertical" }}
-          value={form.descripcion}
+          value={form.descripcion ?? ""}
           onChange={(e) => set("descripcion", e.target.value)}
         />
       </Field>

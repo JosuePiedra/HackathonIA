@@ -15,7 +15,7 @@ const H = 820;
 
 // Color (var() vía .style() para seguir el tema activo).
 const riskVar = (nivel?: string) =>
-  nivel === "ROJO" ? "var(--risk-red)" : nivel === "AMARILLO" ? "var(--risk-yellow)" : "var(--risk-green)";
+  nivel === "Rojo" ? "var(--risk-red)" : nivel === "Amarillo" ? "var(--risk-yellow)" : "var(--risk-green)";
 
 const provIsRed = (n: GraphNode) =>
   Boolean(n.en_lista_restrictiva) || (n.casos_rojos ?? 0) > 0;
@@ -41,7 +41,7 @@ export function RelationGraph({ data, onNodeClick }: Props) {
 
     if (isolate) {
       const redIds = new Set(
-        nodes.filter((n) => n.type === "siniestro" && n.nivel_riesgo === "ROJO").map((n) => n.id),
+        nodes.filter((n) => n.type === "siniestro" && n.nivel_riesgo === "Rojo").map((n) => n.id),
       );
       const keep = new Set<string>(redIds);
       for (const l of data.links) {
@@ -73,9 +73,9 @@ export function RelationGraph({ data, onNodeClick }: Props) {
       .selectAll("line")
       .data(links)
       .join("line")
-      .style("stroke", (l) => (l.nivel_riesgo === "ROJO" ? "var(--risk-red)" : "var(--border)"))
-      .style("stroke-width", (l) => (l.nivel_riesgo === "ROJO" ? 1.6 : 1.2))
-      .style("stroke-dasharray", (l) => (l.nivel_riesgo === "ROJO" ? "5 4" : ""))
+      .style("stroke", (l) => (l.nivel_riesgo === "Rojo" ? "var(--risk-red)" : "var(--border)"))
+      .style("stroke-width", (l) => (l.nivel_riesgo === "Rojo" ? 1.6 : 1.2))
+      .style("stroke-dasharray", (l) => (l.nivel_riesgo === "Rojo" ? "5 4" : ""))
       .style("opacity", 0.7);
 
     // ── Nodos ──

@@ -3,11 +3,11 @@
 import { useMemo } from "react";
 import type { SiniestroCompleto, FilterState, RiskLevel } from "@/lib/types";
 
-const ALL_LEVELS: RiskLevel[] = ["VERDE", "AMARILLO", "ROJO"];
+const ALL_LEVELS: RiskLevel[] = ["Verde", "Amarillo", "Rojo"];
 const LEVEL_META: Record<RiskLevel, { cls: string; label: string }> = {
-  VERDE: { cls: "green", label: "Verde" },
-  AMARILLO: { cls: "yellow", label: "Amarillo" },
-  ROJO: { cls: "red", label: "Rojo" },
+  Verde: { cls: "green", label: "Verde" },
+  Amarillo: { cls: "yellow", label: "Amarillo" },
+  Rojo: { cls: "red", label: "Rojo" },
 };
 
 interface Props {
@@ -18,11 +18,11 @@ interface Props {
 
 export function CasosFilters({ claims, filters, onChange }: Props) {
   const ramos = useMemo(
-    () => [...new Set(claims.map((c) => c.ramo).filter(Boolean))].sort(),
+    () => [...new Set(claims.map((c) => c.ramo).filter((r): r is string => r != null))].sort(),
     [claims],
   );
   const ciudades = useMemo(
-    () => [...new Set(claims.map((c) => c.ciudad).filter(Boolean))].sort(),
+    () => [...new Set(claims.map((c) => c.ciudad).filter((c): c is string => c != null))].sort(),
     [claims],
   );
 

@@ -7,9 +7,9 @@ import { RED_RULE_CODES } from "@/lib/constants";
 import type { SiniestroCompleto, RiskLevel } from "@/lib/types";
 
 const BAR_COLOR: Record<RiskLevel, string> = {
-  VERDE: "green",
-  AMARILLO: "yellow",
-  ROJO: "red",
+  Verde: "green",
+  Amarillo: "yellow",
+  Rojo: "red",
 };
 
 const money = (n: number) => n.toLocaleString("en-US");
@@ -24,7 +24,7 @@ function RuleChips({ reglas }: { reglas: string }) {
   return (
     <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
       {codes.map((code) => {
-        const rojo = (RED_RULE_CODES as readonly string[]).includes(code);
+        const rojo = RED_RULE_CODES.has(code);
         return (
           <span
             key={code}
@@ -73,20 +73,20 @@ export function CasosTable({ claims }: { claims: SiniestroCompleto[] }) {
           >
             <td className="col-id">{c.id_siniestro}</td>
             <td>
-              <RiskBadge level={c.nivel_riesgo} />
+              <RiskBadge level={c.nivel_riesgo ?? "Verde"} />
             </td>
             <td>
-              <RuleChips reglas={c.reglas_criticas_activadas} />
+              <RuleChips reglas={c.reglas_criticas_activadas ?? ""} />
             </td>
             <td>
               <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 90 }}>
-                <span className="col-score" style={{ color: `var(--risk-${BAR_COLOR[c.nivel_riesgo]})` }}>
-                  {Math.round(c.score_final)}
+                <span className="col-score" style={{ color: `var(--risk-${BAR_COLOR[c.nivel_riesgo ?? "Verde"]})` }}>
+                  {Math.round(c.score_final ?? 0)}
                 </span>
-                <ScoreBar value={c.score_final} color={BAR_COLOR[c.nivel_riesgo]} />
+                <ScoreBar value={c.score_final ?? 0} color={BAR_COLOR[c.nivel_riesgo ?? "Verde"]} />
               </div>
             </td>
-            <td className="col-mono">{Math.round(c.probabilidad_ml * 100)}%</td>
+            <td className="col-mono">{Math.round((c.probabilidad_ml ?? 0) * 100)}%</td>
             <td>{c.ramo}</td>
             <td>{c.ciudad}</td>
             <td className="col-mono">{c.id_proveedor}</td>

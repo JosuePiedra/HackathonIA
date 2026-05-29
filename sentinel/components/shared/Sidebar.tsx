@@ -10,6 +10,7 @@ import {
   Share2,
   Building2,
   Bot,
+  ShieldCheck,
 } from "lucide-react";
 import { useData } from "@/context/DataContext";
 import { APP_VERSION } from "@/lib/constants";
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
   { href: "/red", label: "Red de relaciones", icon: Share2, match: (p: string) => p.startsWith("/red") },
   { href: "/proveedores", label: "Proveedores", icon: Building2, match: (p: string) => p.startsWith("/proveedores") },
   { href: "/agente", label: "Agente IA", icon: Bot, match: (p: string) => p.startsWith("/agente"), live: true },
+  { href: "/reglas", label: "Reglas de negocio", icon: ShieldCheck, match: (p: string) => p.startsWith("/reglas") },
 ] as const;
 
 export function Sidebar() {

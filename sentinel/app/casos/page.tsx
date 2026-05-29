@@ -31,7 +31,7 @@ function CasosContent() {
   const filtered = useMemo(() => {
     let rows = filterClaims(claims, filters);
     if (q) rows = rows.filter((c) => c.id_siniestro.toLowerCase().includes(q));
-    return rows.sort((a, b) => b.score_final - a.score_final);
+    return rows.sort((a, b) => (b.score_final ?? 0) - (a.score_final ?? 0));
   }, [claims, filters, q]);
 
   const exportClaims = async (type: "red" | "top10" | "executive", file: string) => {

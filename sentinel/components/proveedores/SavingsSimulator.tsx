@@ -10,7 +10,7 @@ export function SavingsSimulator({ claims }: { claims: SiniestroCompleto[] }) {
   const [pct, setPct] = useState(60);
   const base = computeSavingsEstimate(claims, 100);
   const savings = computeSavingsEstimate(claims, pct);
-  const redCount = claims.filter((c) => c.nivel_riesgo === "ROJO").length;
+  const redCount = claims.filter((c) => c.nivel_riesgo === "Rojo").length;
 
   return (
     <div

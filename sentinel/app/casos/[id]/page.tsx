@@ -64,18 +64,18 @@ export default function DetalleSiniestroPage() {
   }
 
   const ratio =
-    siniestro.suma_asegurada > 0
-      ? (siniestro.monto_reclamado / siniestro.suma_asegurada).toFixed(2)
+    (siniestro.suma_asegurada ?? 0) > 0
+      ? (siniestro.monto_reclamado / (siniestro.suma_asegurada ?? 1)).toFixed(2)
       : "—";
 
   const dias = (() => {
-    const a = new Date(siniestro.fecha_ocurrencia).getTime();
-    const b = new Date(siniestro.fecha_reporte).getTime();
+    const a = new Date(siniestro.fecha_ocurrencia ?? "").getTime();
+    const b = new Date(siniestro.fecha_reporte ?? "").getTime();
     const d = Math.round((b - a) / 86_400_000);
     return Number.isFinite(d) ? `${d} días` : "—";
   })();
 
-  const riskColor = `var(--risk-${siniestro.nivel_riesgo === "ROJO" ? "red" : siniestro.nivel_riesgo === "AMARILLO" ? "yellow" : "green"})`;
+  const riskColor = `var(--risk-${siniestro.nivel_riesgo === "Rojo" ? "red" : siniestro.nivel_riesgo === "Amarillo" ? "yellow" : "green"})`;
 
   return (
     <div className="page" style={{ paddingBottom: 90 }}>
@@ -92,7 +92,7 @@ export default function DetalleSiniestroPage() {
             {siniestro.ramo} · {siniestro.cobertura} · {siniestro.ciudad}
           </div>
         </div>
-        <RiskBadge level={siniestro.nivel_riesgo} size="lg" />
+        <RiskBadge level={siniestro.nivel_riesgo ?? "Verde"} size="lg" />
       </div>
 
       <div
@@ -125,16 +125,16 @@ export default function DetalleSiniestroPage() {
           <div className="card">
             <div className="label-mono" style={{ marginBottom: 14 }}>Datos del reclamo</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-              <DataCell label="Asegurado" value={siniestro.id_asegurado} />
-              <DataCell label="Proveedor" value={siniestro.id_proveedor} />
-              <DataCell label="Ramo" value={siniestro.ramo} />
-              <DataCell label="Cobertura" value={siniestro.cobertura} />
-              <DataCell label="Ciudad" value={siniestro.ciudad} />
+              <DataCell label="Asegurado" value={siniestro.id_asegurado ?? ""} />
+              <DataCell label="Proveedor" value={siniestro.id_proveedor ?? ""} />
+              <DataCell label="Ramo" value={siniestro.ramo ?? ""} />
+              <DataCell label="Cobertura" value={siniestro.cobertura ?? ""} />
+              <DataCell label="Ciudad" value={siniestro.ciudad ?? ""} />
               <DataCell label="Días a reporte" value={dias} />
-              <DataCell label="Fecha ocurrencia" value={siniestro.fecha_ocurrencia} />
-              <DataCell label="Fecha reporte" value={siniestro.fecha_reporte} />
-              <DataCell label="Vigencia" value={`${siniestro.fecha_inicio_poliza} → ${siniestro.fecha_fin_poliza}`} />
-              <DataCell label="Estado" value={siniestro.estado} />
+              <DataCell label="Fecha ocurrencia" value={siniestro.fecha_ocurrencia ?? ""} />
+              <DataCell label="Fecha reporte" value={siniestro.fecha_reporte ?? ""} />
+              <DataCell label="Vigencia" value={`${siniestro.fecha_inicio_poliza ?? ""} → ${siniestro.fecha_fin_poliza ?? ""}`} />
+              <DataCell label="Estado" value={siniestro.estado ?? ""} />
             </div>
           </div>
 
@@ -147,7 +147,7 @@ export default function DetalleSiniestroPage() {
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border)", fontSize: 13 }}>
               <span style={{ color: "var(--text-tertiary)" }}>Suma asegurada</span>
-              <span style={{ fontFamily: "var(--font-dm-mono)" }}>{money(siniestro.suma_asegurada)}</span>
+              <span style={{ fontFamily: "var(--font-dm-mono)" }}>{money(siniestro.suma_asegurada ?? 0)}</span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 13 }}>
               <span style={{ color: "var(--text-tertiary)" }}>Ratio reclamado / suma asegurada</span>
@@ -159,8 +159,8 @@ export default function DetalleSiniestroPage() {
             <div className="label-mono" style={{ marginBottom: 14 }}>Flags de riesgo</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, fontSize: 12 }}>
               <Flag on={!siniestro.documentos_completos} label="Documentos incompletos" />
-              <Flag on={siniestro.en_lista_restrictiva} label="Proveedor en lista restrictiva" />
-              <Flag on={Boolean(siniestro.reglas_criticas_activadas.trim())} label="Reglas críticas activadas" />
+              <Flag on={siniestro.en_lista_restrictiva ?? false} label="Proveedor en lista restrictiva" />
+              <Flag on={Boolean((siniestro.reglas_criticas_activadas ?? "").trim())} label="Reglas críticas activadas" />
               <Flag on={siniestro.prediccion_ml === 1} label="ML: sospechoso" />
             </div>
           </div>
@@ -185,7 +185,7 @@ export default function DetalleSiniestroPage() {
       </div>
 
       <div style={{ marginTop: 16 }}>
-        <EthicsMessage mensaje={siniestro.mensaje_ia} />
+        <EthicsMessage mensaje={siniestro.mensaje_ia ?? undefined} />
       </div>
 
       {siniestro.fecha_evaluacion ? (

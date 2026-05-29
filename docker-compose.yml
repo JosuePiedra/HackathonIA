@@ -1,0 +1,126 @@
+# ============================================================
+# HackathonIA — orquestador raíz
+#
+# Uso:
+#   cp .env.example .env   # completar valores reales
+#   docker compose up --build
+#
+# Servicios:
+#   init-db         → aplica migraciones SQL en Supabase (solo si las tablas no existen)
+#   fraud-detector  → FastAPI: scoring API                 → localhost:8001
+#   fraud-listener  → Python: escucha Supabase realtime + pipeline ML
+#   sentinel        → Next.js: dashboard antifraude        → localhost:3000
+# ============================================================
+
+# Variables compartidas entre los servicios Python
+x-python-env: &python-env
+  SUPABASE_URL: ${SUPABASE_URL}
+  SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+  GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+  GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.0-flash}
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+  MODEL_DIR: /app
+  UPLOAD_DIR: data/raw
+  STAGING_DIR: data/staging
+  PROCESSED_DIR: data/processed
+  ENABLE_LLM_MAPPING: ${ENABLE_LLM_MAPPING:-true}
+  PYTHONUNBUFFERED: "1"
+
+services:
+  # ── 0. Migraciones ───────────────────────────────────────────
+  # Crea las tablas en Supabase si no existen. Se ejecuta una sola
+  # vez y el resto de servicios esperan a que termine.
+  # init-db:
+  #   image: postgres:16-alpine
+  #   dns:
+  #     - 8.8.8.8
+  #     - 8.8.4.4
+  #   volumes:
+  #     - ./db:/migrations:ro
+  #   environment:
+  #     SUPABASE_DB_URL: ${SUPABASE_DB_URL}
+  #   command: >
+  #     sh -c 'echo "Aplicando migraciones..." &&
+  #            psql "$$SUPABASE_DB_URL" -f /migrations/00_safe_schema.sql -v ON_ERROR_STOP=0 &&
+  #            echo "Migraciones completadas."'
+  #   restart: "no"
+
+  # ── 1. FastAPI scoring API ───────────────────────────────────
+  fraud-detector:
+    build:
+      context: ./ModelsAI
+      dockerfile: Dockerfile
+      target: production
+    image: fraud-detector:latest
+    container_name: fraud-detector
+    ports:
+      - "8001:8000"
+    environment:
+      <<: *python-env
+    volumes:
+      - ./ModelsAI/xgb_fraude.json:/app/xgb_fraude.json:ro
+      - ./ModelsAI/model_metadata.json:/app/model_metadata.json:ro
+    # depends_on:
+    #   init-db:
+    #     condition: service_completed_successfully
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # ── 2. Listener realtime ─────────────────────────────────────
+  # Mismo imagen que fraud-detector, diferente comando:
+  # escucha INSERT en siniestro y corre el pipeline completo (features → reglas → score → ML).
+  fraud-listener:
+    build:
+      context: ./ModelsAI
+      dockerfile: Dockerfile
+      target: production
+    image: fraud-detector:latest
+    container_name: fraud-listener
+    environment:
+      <<: *python-env
+    volumes:
+      - ./ModelsAI/xgb_fraude.json:/app/xgb_fraude.json:ro
+      - ./ModelsAI/model_metadata.json:/app/model_metadata.json:ro
+    depends_on:
+      # init-db:
+      #   condition: service_completed_successfully
+      fraud-detector:
+        condition: service_healthy
+    restart: unless-stopped
+    command: ["python", "-m", "src.realtime.listener"]
+
+  # ── 3. Sentinel — Next.js dashboard ─────────────────────────
+  # NEXT_PUBLIC_* se "inlinean" en tiempo de build (van al bundle del cliente).
+  sentinel:
+    build:
+      context: ./sentinel
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    container_name: sentinel
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
+    # depends_on:
+    #   init-db:
+    #     condition: service_completed_successfully
+    restart: unless-stopped

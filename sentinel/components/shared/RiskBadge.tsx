@@ -1,15 +1,15 @@
 import type { RiskLevel } from "@/lib/types";
 
 const COLOR_CLASS: Record<RiskLevel, string> = {
-  VERDE: "green",
-  AMARILLO: "yellow",
-  ROJO: "red",
+  Verde: "green",
+  Amarillo: "yellow",
+  Rojo: "red",
 };
 
 const LABEL: Record<RiskLevel, string> = {
-  VERDE: "Verde",
-  AMARILLO: "Amarillo",
-  ROJO: "Rojo",
+  Verde: "Verde",
+  Amarillo: "Amarillo",
+  Rojo: "Rojo",
 };
 
 interface RiskBadgeProps {

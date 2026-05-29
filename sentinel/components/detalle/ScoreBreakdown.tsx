@@ -19,7 +19,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 }
 
 export function ScoreBreakdown({ siniestro, reglas, reglasLoading }: Props) {
-  const factores = siniestro.factores_principales
+  const factores = (siniestro.factores_principales ?? "")
     .split(/[;,]/)
     .map((f) => f.trim())
     .filter(Boolean);
@@ -37,13 +37,13 @@ export function ScoreBreakdown({ siniestro, reglas, reglasLoading }: Props) {
         <SectionTitle>Capa 2 · Análisis heurístico</SectionTitle>
         <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
           <span style={{ fontFamily: "var(--font-syne)", fontSize: 28, fontWeight: 600 }}>
-            {Math.round(siniestro.score_heuristico)}
+            {Math.round(siniestro.score_heuristico ?? 0)}
           </span>
           <span style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-dm-mono)", fontSize: 12 }}>
             / 100
           </span>
         </div>
-        <ScoreBar value={siniestro.score_heuristico} color="purple" />
+        <ScoreBar value={siniestro.score_heuristico ?? 0} color="purple" />
         {factores.length > 0 ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12 }}>
             {factores.map((f, i) => (
@@ -69,8 +69,8 @@ export function ScoreBreakdown({ siniestro, reglas, reglasLoading }: Props) {
       <div className="card">
         <SectionTitle>Capa 3 · Modelo de aprendizaje automático</SectionTitle>
         <MLInsight
-          prediccion_ml={siniestro.prediccion_ml}
-          probabilidad_ml={siniestro.probabilidad_ml}
+          prediccion_ml={siniestro.prediccion_ml ?? 0}
+          probabilidad_ml={siniestro.probabilidad_ml ?? 0}
         />
       </div>
 
@@ -84,13 +84,13 @@ export function ScoreBreakdown({ siniestro, reglas, reglasLoading }: Props) {
               fontSize: 64,
               fontWeight: 700,
               lineHeight: 1,
-              color: `var(--risk-${siniestro.nivel_riesgo === "ROJO" ? "red" : siniestro.nivel_riesgo === "AMARILLO" ? "yellow" : "green"})`,
+              color: `var(--risk-${siniestro.nivel_riesgo === "Rojo" ? "red" : siniestro.nivel_riesgo === "Amarillo" ? "yellow" : "green"})`,
             }}
           >
-            {Math.round(siniestro.score_final)}
+            {Math.round(siniestro.score_final ?? 0)}
           </div>
           <div style={{ flex: 1, minWidth: 200 }}>
-            <RiskBadge level={siniestro.nivel_riesgo} size="lg" />
+            <RiskBadge level={siniestro.nivel_riesgo ?? "Verde"} size="lg" />
             <p style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 10, lineHeight: 1.5 }}>
               <span
                 style={{

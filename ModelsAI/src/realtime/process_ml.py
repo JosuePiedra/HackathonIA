@@ -62,9 +62,9 @@ def _safe_int(val, default: int = 0) -> int:
 
 def _nivel_from_score(score: float) -> str:
     """Map numeric score to DB-compatible nivel_riesgo: Verde/Amarillo/Rojo."""
-    if score > 75:
+    if score >= 75:
         return "Rojo"
-    if score > 40:
+    if score >= 40:
         return "Amarillo"
     return "Verde"
 
@@ -233,7 +233,7 @@ def run(id_siniestro: str, client=None) -> Dict[str, Any]:
     nivel_riesgo = _nivel_from_score(score_final)
 
     update = {
-        "prediccion_ml": 1 if resp.probabilidad_ml >= 0.5 else 0,
+        "prediccion_ml": 1 if resp.probabilidad_ml >= 0.40 else 0,
         "probabilidad_ml": round(resp.probabilidad_ml, 6),
         "score_final": score_final,
         "nivel_riesgo": nivel_riesgo,
@@ -243,7 +243,13 @@ def run(id_siniestro: str, client=None) -> Dict[str, Any]:
         "version_modelo": f"xgb_v1+heuristic (ML={predictor._weight_ml:.2f}/rules={predictor._weight_rules:.2f})",
     }
 
-    client.table("score_siniestro").update(update).eq("id_siniestro", id_siniestro).execute()
+    try:
+        res = client.table("score_siniestro").update(update).eq("id_siniestro", id_siniestro).execute()
+        if not res.data:
+            # process_score row missing — insert with defaults for missing PK fields
+            client.table("score_siniestro").insert({"id_siniestro": id_siniestro, **update}).execute()
+    except Exception as exc:
+        raise RuntimeError(f"[ml] Failed to write score_siniestro for {id_siniestro}: {exc}") from exc
 
     print(
         f"[ml] score_siniestro updated for {id_siniestro}: "

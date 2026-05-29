@@ -45,7 +45,7 @@ const inputStyle: CSSProperties = {
 interface Props {
   file: File;
   onClose: () => void;
-  onImported: (n: number) => void;
+  onImported: (n: number, ids: string[]) => void;
 }
 
 export function CsvImportWizard({ file, onClose, onImported }: Props) {
@@ -105,11 +105,17 @@ export function CsvImportWizard({ file, onClose, onImported }: Props) {
   }, [file]);
 
   const goReview = () => {
-    const mapped = rawRows.map((r) => {
+    const ts = Date.now();
+    const existingSins = sets?.siniestros ?? new Set<string>();
+    const mapped = rawRows.map((r, idx) => {
       const row: RawRow = {};
       for (const col of SINIESTRO_COLUMNS) {
         const header = colMapping[col];
         row[col] = header ? (r[header] ?? "").trim() : "";
+      }
+      // Auto-generate if empty OR if the ID already exists in DB
+      if (!row.id_siniestro || existingSins.has(row.id_siniestro)) {
+        row.id_siniestro = `SIN-${ts}-${String(idx + 1).padStart(3, "0")}`;
       }
       return row;
     });
@@ -117,31 +123,43 @@ export function CsvImportWizard({ file, onClose, onImported }: Props) {
     setPhase("review");
   };
 
-  // Validación de la grilla de revisión.
+  // Errores bloqueantes (impiden importar).
   const errors = useMemo(() => {
     const result: Record<number, Partial<Record<SiniestroColumn, string>>> = {};
-    if (!sets) return result;
     const seen = new Set<string>();
     editedRows.forEach((row, i) => {
       const e: Partial<Record<SiniestroColumn, string>> = {};
       const id = (row.id_siniestro ?? "").trim();
       if (!id) e.id_siniestro = "Requerido";
       else if (seen.has(id)) e.id_siniestro = "Duplicado en el CSV";
-      else if (sets.siniestros.size > 0 && sets.siniestros.has(id))
-        e.id_siniestro = "Ya existe en la base";
+      // "ya existe en base" no bloquea — se omite en el insert silenciosamente
       if (id) seen.add(id);
       if (!(row.ramo ?? "").trim()) e.ramo = "Requerido";
       if (!(row.ciudad ?? "").trim()) e.ciudad = "Requerido";
-      for (const fk of FK_CHECKS) {
-        const v = (row[fk.col] ?? "").trim();
-        // Solo validamos contra una tabla si pudimos leer sus IDs (evita falsos positivos por RLS).
-        if (v && sets[fk.set].size > 0 && !sets[fk.set].has(v)) e[fk.col] = fk.label;
-      }
       for (const m of ["monto_reclamado", "monto_estimado", "monto_pagado"] as const) {
         const v = (row[m] ?? "").trim();
         if (v && Number.isNaN(Number(v))) e[m] = "Número inválido";
       }
       if (Object.keys(e).length > 0) result[i] = e;
+    });
+    return result;
+  }, [editedRows]);
+
+  // Advertencias informativas (no bloquean importación, borde amarillo).
+  const warnings = useMemo(() => {
+    const result: Record<number, Partial<Record<SiniestroColumn, string>>> = {};
+    if (!sets) return result;
+    editedRows.forEach((row, i) => {
+      const w: Partial<Record<SiniestroColumn, string>> = {};
+      // FK match: informa si el ID referenciado no existe en DB (puede ser válido para datos nuevos)
+      for (const fk of FK_CHECKS) {
+        const v = (row[fk.col] ?? "").trim();
+        if (v && sets[fk.set].size > 0 && !sets[fk.set].has(v))
+          w[fk.col] = `${fk.label} — se intentará insertar de todas formas`;
+      }
+      const id = (row.id_siniestro ?? "").trim();
+      if (id && sets.siniestros.has(id)) w.id_siniestro = "Ya existe — se omitirá";
+      if (Object.keys(w).length > 0) result[i] = w;
     });
     return result;
   }, [editedRows, sets]);
@@ -157,14 +175,44 @@ export function CsvImportWizard({ file, onClose, onImported }: Props) {
   const doImport = async () => {
     if (errorCount > 0) return;
     setPhase("importing");
-    const base = editedRows.map(normalizeSiniestroBaseRow);
+    // Null out FK fields that don't exist in DB to avoid FK violation errors
+    const prepared = editedRows.map((row) => ({
+      ...row,
+      id_poliza:    sets?.polizas.has(row.id_poliza ?? "")    ? row.id_poliza    : "",
+      id_asegurado: sets?.asegurados.has(row.id_asegurado ?? "") ? row.id_asegurado : "",
+      id_vehiculo:  sets?.vehiculos.has(row.id_vehiculo ?? "")  ? row.id_vehiculo  : "",
+      id_proveedor: sets?.proveedores.has(row.id_proveedor ?? "") ? row.id_proveedor : "",
+    }));
+    const base = prepared.map(normalizeSiniestroBaseRow);
+    const attempted = base.length;
     const res = await bulkInsertSiniestros(base);
+
     if (!res.ok) {
-      setError(res.error ?? "No se pudieron importar los siniestros.");
+      setError(`Insert falló (${attempted} filas intentadas). Error de base de datos: ${res.error ?? "desconocido"}`);
       setPhase("review");
       return;
     }
-    onImported(res.inserted);
+
+    if (res.inserted === 0 && attempted > 0) {
+      setError(
+        `Se enviaron ${attempted} fila(s) pero la base de datos no confirmó ninguna inserción. ` +
+        `Posibles causas: política RLS activa, FK inválida o permisos insuficientes. ` +
+        `Verifica los logs de Supabase.`
+      );
+      setPhase("review");
+      return;
+    }
+
+    if (res.inserted < attempted) {
+      // Parcial: algunos insertaron, otros no
+      setError(
+        `Solo ${res.inserted} de ${attempted} filas insertadas. ` +
+        `Algunas fueron rechazadas por la base de datos (FK o duplicados).`
+      );
+      // Aún así notificamos lo que sí entró
+    }
+
+    onImported(res.inserted, res.insertedIds ?? []);
   };
 
   const mappedCount = Object.values(colMapping).filter(Boolean).length;
@@ -312,17 +360,26 @@ export function CsvImportWizard({ file, onClose, onImported }: Props) {
                       <td style={{ ...tdStyle, color: "var(--text-tertiary)" }}>{i + 1}</td>
                       {SINIESTRO_COLUMNS.map((col) => {
                         const err = errors[i]?.[col];
+                        const warn = !err ? warnings[i]?.[col] : undefined;
                         return (
                           <td key={col} style={tdStyle}>
                             <input
                               value={row[col] ?? ""}
                               onChange={(e) => setCell(i, col, e.target.value)}
-                              title={err}
+                              title={err ?? warn}
                               style={{
                                 ...inputStyle,
                                 width: 130,
-                                borderColor: err ? "var(--risk-red)" : "var(--border)",
-                                background: err ? "var(--risk-red-bg)" : "var(--bg-base)",
+                                borderColor: err
+                                  ? "var(--risk-red)"
+                                  : warn
+                                  ? "var(--risk-yellow)"
+                                  : "var(--border)",
+                                background: err
+                                  ? "var(--risk-red-bg)"
+                                  : warn
+                                  ? "var(--risk-yellow-bg)"
+                                  : "var(--bg-base)",
                               }}
                             />
                           </td>

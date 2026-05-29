@@ -10,7 +10,7 @@ interface Props {
 export function NarrativeAnalysis({ siniestro, allClaims }: Props) {
   if (!siniestro.descripcion) return null;
 
-  const tieneRF07 = siniestro.reglas_criticas_activadas
+  const tieneRF07 = (siniestro.reglas_criticas_activadas ?? "")
     .split(",")
     .map((c) => c.trim())
     .includes("RF-07");

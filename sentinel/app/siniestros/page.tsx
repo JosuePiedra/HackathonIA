@@ -11,6 +11,7 @@ import {
 import { useData } from "@/context/DataContext";
 import { SiniestroForm } from "@/components/siniestros/SiniestroForm";
 import { CsvImportWizard } from "@/components/siniestros/CsvImportWizard";
+import { ProcessingPanel } from "@/components/siniestros/ProcessingPanel";
 import type { SiniestroBase } from "@/lib/types";
 
 const money = (n: number) => "$" + n.toLocaleString("en-US");
@@ -25,6 +26,7 @@ export default function SiniestrosPage() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [processingIds, setProcessingIds] = useState<string[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
@@ -267,14 +269,26 @@ export default function SiniestrosPage() {
         <CsvImportWizard
           file={csvFile}
           onClose={() => setCsvFile(null)}
-          onImported={(n) => {
+          onImported={(n, ids) => {
             setCsvFile(null);
-            setNotice(`${n} siniestros importados desde el CSV.`);
+            setNotice(`${n} siniestros importados. El backend los está procesando…`);
+            if (ids.length > 0) setProcessingIds(ids);
             void load();
             void refresh();
           }}
         />
       ) : null}
+
+      {processingIds.length > 0 && (
+        <ProcessingPanel
+          ids={processingIds}
+          onDone={() => {
+            setProcessingIds([]);
+            void load();
+            void refresh();
+          }}
+        />
+      )}
     </div>
   );
 }

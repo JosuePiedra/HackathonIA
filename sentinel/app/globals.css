@@ -57,25 +57,6 @@
   }
 }
 
-cambialo a tema ligth :root {
-  --bg-base: #F5F7FA;
-  --bg-surface: #FFFFFF;
-  --bg-elevated: #F9FAFB;
-  --border: #D9DEE8;
-  --text-primary: #111827;
-  --text-secondary: #4B5563;
-  --text-tertiary: #9CA3AF;
-  --accent: #2563EB;
-  --accent-hover: #3B82F6;
-  --risk-green: #16A34A;
-  --risk-green-bg: #DCFCE7;
-  --risk-yellow: #CA8A04;
-  --risk-yellow-bg: #FEF9C3;
-  --risk-red: #DC2626;
-  --risk-red-bg: #FEE2E2;
-  --purple: #8B5CF6;
-  --teal: #14B8A6;
-}
 
 @layer base {
   * {
@@ -292,6 +273,11 @@ a {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 @keyframes thinking {

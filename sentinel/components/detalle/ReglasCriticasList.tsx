@@ -10,7 +10,7 @@ interface Props {
 }
 
 function clsColor(clasificacion: string) {
-  return clasificacion === "ROJO"
+  return clasificacion === "Rojo"
     ? { text: "var(--risk-red)", bg: "var(--risk-red-bg)", border: "rgba(239,68,68,0.3)" }
     : { text: "var(--risk-yellow)", bg: "var(--risk-yellow-bg)", border: "rgba(234,179,8,0.25)" };
 }

@@ -1,48 +1,34 @@
-# ── Stage 1: base ─────────────────────────────────────────────────────────────
-FROM python:3.12-slim AS python-base
+# ── Stage 1: instalar dependencias Python ────────────────────
+FROM python:3.12-slim AS builder
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_VERSION=1.8.3 \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    POETRY_NO_INTERACTION=1 \
-    PYSETUP_PATH="/opt/pysetup" \
-    VENV_PATH="/opt/pysetup/.venv"
-
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
-
-# ── Stage 2: builder (instala deps, no entra en producción) ───────────────────
-FROM python-base AS builder
-
-RUN apt-get update && apt-get install --no-install-recommends -y curl \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN curl -sSL https://install.python-poetry.org | python3 -
-
-WORKDIR $PYSETUP_PATH
-
-# Solo copiamos el manifiesto para aprovechar cache de capas
-COPY pyproject.toml poetry.lock* ./
-
-# Instala dependencias sin el paquete propio (no hay setup.py / dist)
-RUN poetry install --no-root --only main
-
-# ── Stage 3: producción ───────────────────────────────────────────────────────
-FROM python-base AS production
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DEFAULT_TIMEOUT=300 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
 
-# Copiamos el virtualenv ya construido desde builder
-COPY --from=builder $PYSETUP_PATH $PYSETUP_PATH
+COPY requirements.txt .
 
-# Código del servicio
+RUN pip install --no-cache-dir --timeout 300 -r requirements.txt
+
+# ── Stage 2: imagen de producción ────────────────────────────
+FROM python:3.12-slim AS production
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app
+
+# Copiar paquetes instalados desde el builder
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Código fuente
 COPY src/ ./src/
 
-# Artefactos del modelo (JSON — sin joblib, sin binarios pesados)
+# Artefactos del modelo
 COPY xgb_fraude.json model_metadata.json ./
 
 ENV MODEL_DIR=/app \

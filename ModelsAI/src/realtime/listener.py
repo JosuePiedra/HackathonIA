@@ -37,20 +37,26 @@ log = logging.getLogger("fraudia.listener")
 
 
 def _get_id_from_payload(payload: Any) -> str | None:
-    """Extract id_siniestro from Realtime payload."""
-    try:
-        # payload is a PostgresChangesPayload pydantic model
-        record = payload.data.record if hasattr(payload, "data") else {}
-        return record.get("id_siniestro")
-    except Exception:
-        pass
-    # Fallback for dict-like payloads
+    """Extract id_siniestro from Realtime payload.
+
+    New realtime-py format: {'data': {'record': {...}, ...}, 'ids': [...]}
+    Old pydantic format:    payload.data.record
+    """
     try:
         if isinstance(payload, dict):
-            return (
-                payload.get("record", {}).get("id_siniestro")
-                or payload.get("new", {}).get("id_siniestro")
+            record = (
+                (payload.get("data") or {}).get("record")  # new format
+                or payload.get("record")                    # flat dict
+                or payload.get("new")                       # legacy
             )
+            if isinstance(record, dict):
+                return record.get("id_siniestro")
+        # Pydantic model
+        if hasattr(payload, "data"):
+            data = payload.data
+            record = data.record if hasattr(data, "record") else (data if isinstance(data, dict) else {})
+            if isinstance(record, dict):
+                return record.get("id_siniestro")
     except Exception:
         pass
     return None
@@ -98,7 +104,7 @@ async def main() -> None:
     channel = client.channel("siniestro-inserts")
 
     channel.on_postgres_changes(
-        event=RealtimePostgresChangesListenEvent.INSERT,
+        event=RealtimePostgresChangesListenEvent.Insert,
         schema="public",
         table="siniestro",
         callback=lambda payload: asyncio.create_task(_handle_insert(payload)),

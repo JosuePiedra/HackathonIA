@@ -31,7 +31,7 @@ _MENSAJE_IA = (
 
 
 def _fetch_alertas(client, id_siniestro: str) -> List[Dict]:
-    res = client.table("alerta_regla").select("codigo_regla,nombre_regla").eq(
+    res = client.table("alerta_regla").select("codigo_regla,nombre_regla,puntos").eq(
         "id_siniestro", id_siniestro
     ).execute()
     return res.data or []
@@ -40,6 +40,7 @@ def _fetch_alertas(client, id_siniestro: str) -> List[Dict]:
 def compute_score(alertas: List[Dict]) -> Dict[str, Any]:
     """
     Compute score fields from a list of alerta_regla dicts.
+    Uses stored 'puntos' for graduated scoring; falls back to catalog if missing.
 
     Returns score_siniestro fields (without id_siniestro).
     """
@@ -50,11 +51,19 @@ def compute_score(alertas: List[Dict]) -> Dict[str, Any]:
     for alerta in alertas:
         code = alerta.get("codigo_regla", "")
         rule = RULES.get(code, {})
-        pts = int(rule.get("points", 0))
+        # Prefer stored graduated puntos over fixed catalog points
+        stored_pts = alerta.get("puntos")
+        if stored_pts is not None:
+            try:
+                pts = int(float(stored_pts))
+            except (TypeError, ValueError):
+                pts = 0
+        else:
+            pts = int(rule.get("points", 0))
         total_pts += pts
         if code in CRITICAL_RULE_CODES:
             criticas.append(code)
-        if pts >= 8:
+        if pts >= 5:
             factores.append(alerta.get("nombre_regla") or rule.get("name", code))
 
     score = min(total_pts, 100)

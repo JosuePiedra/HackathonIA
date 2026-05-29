@@ -25,9 +25,9 @@ interface Props {
 export function ProveedorDetailPanel({ proveedor, claims, onClose }: Props) {
   const casos = claims.filter((c) => c.id_proveedor === proveedor.id_proveedor);
   const dist = {
-    rojo: casos.filter((c) => c.nivel_riesgo === "ROJO").length,
-    amarillo: casos.filter((c) => c.nivel_riesgo === "AMARILLO").length,
-    verde: casos.filter((c) => c.nivel_riesgo === "VERDE").length,
+    rojo: casos.filter((c) => c.nivel_riesgo === "Rojo").length,
+    amarillo: casos.filter((c) => c.nivel_riesgo === "Amarillo").length,
+    verde: casos.filter((c) => c.nivel_riesgo === "Verde").length,
   };
   const total = casos.length || 1;
 
@@ -121,7 +121,7 @@ export function ProveedorDetailPanel({ proveedor, claims, onClose }: Props) {
               <span className="col-id" style={{ fontFamily: "var(--font-dm-mono)", color: "var(--accent)", fontSize: 12 }}>
                 {c.id_siniestro}
               </span>
-              <RiskBadge level={c.nivel_riesgo} />
+              <RiskBadge level={c.nivel_riesgo ?? "Verde"} />
               <span style={{ marginLeft: "auto", fontFamily: "var(--font-dm-mono)", fontSize: 11, color: "var(--text-secondary)" }}>
                 {money(c.monto_reclamado)}
               </span>
