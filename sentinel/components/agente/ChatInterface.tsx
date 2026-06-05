@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Send, Zap, Code, MessageSquare, RotateCcw } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import type { AgentMessage } from "@/lib/types";
 
 // Caché en memoria: el historial sobrevive la navegación (se pierde al recargar).
@@ -159,7 +160,9 @@ export function ChatInterface({ external, prefill }: Props) {
                         {m.timestamp.toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </div>
-                    <div style={{ whiteSpace: "pre-line" }}>{m.content}</div>
+                    <div className="chat-md">
+                      <ReactMarkdown>{m.content}</ReactMarkdown>
+                    </div>
                   </div>
                   {m.modo ? (
                     <div className="meta" style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
