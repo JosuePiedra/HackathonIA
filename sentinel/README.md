@@ -43,7 +43,7 @@ GEMINI_API_KEY=AIza...
 
 # Opcionales (modelos por defecto)
 ANTHROPIC_MODEL=claude-sonnet-4-20250514
-GEMINI_MODEL=gemini-2.0-flash
+GEMINI_MODEL=gemini-2.5-flash
 ```
 
 > Las API keys nunca se exponen al cliente: solo las usan las rutas en `app/api/`.
@@ -79,8 +79,8 @@ No necesitás instalar Node ni dependencias: solo Docker.
 
 3. Abrí **http://localhost:3000**.
 
-> **Importante:** las variables `NEXT_PUBLIC_*` se incrustan en tiempo de *build* (van al
-> cliente), por eso Compose las pasa como *build args*. Si cambiás esos valores, reconstruí con
+> **Importante:** las variables `NEXT_PUBLIC_*` se incrustan en tiempo de _build_ (van al
+> cliente), por eso Compose las pasa como _build args_. Si cambiás esos valores, reconstruí con
 > `docker compose up --build`. Las API keys del LLM son de servidor (runtime).
 
 ## Modelo de datos — siempre Supabase
@@ -154,16 +154,16 @@ $$;
 
 ## Rutas
 
-| Ruta | Descripción |
-|------|-------------|
-| `/` | Inicio: estado de conexión a Supabase |
-| `/dashboard` | 8 KPIs + 4 gráficos |
-| `/casos` | Bandeja filtrable; exporta CSV/HTML |
-| `/casos/[id]` | Detalle con las 3 capas del score |
-| `/siniestros` | CRUD + carga CSV de siniestros |
-| `/red` | Grafo de relaciones (D3) |
-| `/proveedores` | Ranking + simulador de ahorro |
-| `/agente` | Chat con el agente SQL híbrido |
+| Ruta           | Descripción                           |
+| -------------- | ------------------------------------- |
+| `/`            | Inicio: estado de conexión a Supabase |
+| `/dashboard`   | 8 KPIs + 4 gráficos                   |
+| `/casos`       | Bandeja filtrable; exporta CSV/HTML   |
+| `/casos/[id]`  | Detalle con las 3 capas del score     |
+| `/siniestros`  | CRUD + carga CSV de siniestros        |
+| `/red`         | Grafo de relaciones (D3)              |
+| `/proveedores` | Ranking + simulador de ahorro         |
+| `/agente`      | Chat con el agente SQL híbrido        |
 
 ## Limitaciones del MVP
 

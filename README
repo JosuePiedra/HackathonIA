@@ -1,0 +1,212 @@
+# SENTINEL — Sistema de Detección de Fraude en Seguros
+
+**Figueroa, Valarezo & Piedra**  
+Hackiathon — 2026
+
+---
+
+## Descripción del Proyecto
+
+SENTINEL es una plataforma de detección temprana de fraude en siniestros de seguros vehiculares. Combina un motor de reglas determinísticas, un modelo de aprendizaje automático (XGBoost) y una interfaz web de análisis para asistir a los equipos de investigación en la priorización de casos con indicadores de riesgo.
+
+El sistema no toma decisiones autónomas. Su función es proveer a los analistas información estructurada, trazable y auditable para orientar la investigación humana.
+
+---
+
+## Requisitos del Sistema
+
+### Software
+
+| Componente | Versión mínima |
+|------------|----------------|
+| Docker Engine | 24.x |
+| Docker Compose | v2.x |
+| Git | 2.x |
+| Nginx | 1.18+ (despliegue en servidor) |S
+
+### Servicios externos
+
+- **Supabase** — Base de datos PostgreSQL + Realtime (cuenta gratuita suficiente para demo)
+- **Anthropic API** o **Gemini API** — Para el agente de análisis conversacional (opcional en demo)
+
+---
+
+## Instalación
+
+### 1. Clonar el repositorio
+
+```bash
+git clone <url-repositorio>
+cd HackathonIA
+```
+
+### 2. Configurar variables de entorno
+
+```bash
+cp .env.example .env
+```
+
+Editar `.env` con los valores correspondientes:
+
+```env
+# Base de datos
+SUPABASE_URL=https://<proyecto>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<service_role_key>
+NEXT_PUBLIC_SUPABASE_URL=https://<proyecto>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon_key>
+
+# LLM (elegir uno)
+LLM_PROVIDER=gemini          # o "anthropic"
+GEMINI_API_KEY=<key>
+GEMINI_MODEL=gemini-2.5-flash
+# ANTHROPIC_API_KEY=<key>
+# ANTHROPIC_MODEL=claude-sonnet-4-6
+```
+
+### 3. Inicializar la base de datos
+
+En el **SQL Editor de Supabase**, ejecutar en orden:
+
+```
+db/00_safe_schema.sql      — Crea tablas, vistas e índices
+db/01_add_thresholds.sql   — Agrega umbrales graduados al catálogo de reglas
+```
+
+### 4. Construir y levantar los servicios
+
+```bash
+docker compose up --build
+```
+
+Tiempo estimado de build: 3–5 minutos (primera vez).
+
+---
+
+## Servicios y Puertos
+
+| Servicio | Descripción | Puerto interno | Puerto expuesto |
+|----------|-------------|----------------|-----------------|
+| `fraud-detector` | API FastAPI de scoring ML | 8000 | 127.0.0.1:8001 |
+| `fraud-listener` | Listener Supabase Realtime | — | — |
+| `sentinel` | Dashboard Next.js | 3000 | 127.0.0.1:8093 |
+| nginx | Proxy inverso (producción) | — | 0.0.0.0:80 |
+
+---
+
+## Despliegue en Servidor Linux (Producción)
+
+### Configurar Nginx
+
+```bash
+sudo cp nginx/sentinel.conf /etc/nginx/sites-available/sentinel
+sudo ln -s /etc/nginx/sites-available/sentinel /etc/nginx/sites-enabled/sentinel
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### Configurar SSL con Certbot
+
+```bash
+sudo certbot --nginx -d sentinel.loxa.ec
+```
+
+### Verificar estado
+
+```bash
+docker compose ps
+ss -tlnp | grep -E '80|8093|8001'
+```
+
+---
+
+## Demo Funcional
+
+### Flujo de demostración recomendado
+
+**1. Importar siniestros**
+- Navegar a `/siniestros`
+- Cargar el archivo CSV de ejemplo incluido en `demo/siniestros_demo.csv`
+- El wizard mapea columnas automáticamente y muestra vista previa
+- Confirmar importación
+
+**2. Observar el pipeline en tiempo real**
+- En terminal: `docker compose logs fraud-listener -f`
+- Los siniestros son procesados automáticamente segundos después de la inserción
+- El pipeline ejecuta: variables de riesgo → reglas → score heurístico → modelo ML
+
+**3. Revisar el dashboard**
+- Navegar a `/dashboard`
+- Ver KPIs: total de siniestros, distribución por nivel de riesgo, alertas críticas
+- Explorar los gráficos de distribución de score y tendencia temporal
+
+**4. Analizar un caso de alto riesgo**
+- En `/casos`, filtrar por nivel **Rojo**
+- Seleccionar cualquier caso
+- La pantalla de detalle muestra: score heurístico, predicción ML, reglas activadas con puntos graduados, acción sugerida y nota ética
+
+**5. Consultar al agente**
+- Navegar a `/agente`
+- Preguntas de ejemplo:
+  - "¿Cuáles son los proveedores con mayor frecuencia de siniestros?"
+  - "Muéstrame los casos con score mayor a 70 del último mes"
+  - "¿Cuántos siniestros en nivel Rojo hay por ciudad?"
+
+**6. Ver red de relaciones**
+- Navegar a `/red`
+- El grafo interactivo muestra conexiones entre asegurados, vehículos y proveedores
+
+---
+
+## Estructura del Repositorio
+
+```
+HackathonIA/
+├── docker-compose.yml          — Orquestación de servicios
+├── .env.example                — Plantilla de configuración
+├── nginx/
+│   └── sentinel.conf           — Configuración del proxy inverso
+├── db/
+│   ├── 00_safe_schema.sql      — Esquema completo de base de datos
+│   └── 01_add_thresholds.sql   — Umbrales graduados del catálogo
+├── ModelsAI/                   — Backend Python (FastAPI + pipeline ML)
+│   ├── src/
+│   │   ├── api/                — Endpoints FastAPI
+│   │   ├── models/             — Modelos Pydantic
+│   │   ├── services/           — Predictor XGBoost (numpy puro)
+│   │   ├── realtime/           — Pipeline de procesamiento automático
+│   │   ├── rules/              — Catálogo y motor de reglas
+│   │   ├── features/           — Feature engineering
+│   │   ├── normalization/      — Normalización de entidades
+│   │   ├── mapping/            — Mapeo de esquema con LLM
+│   │   └── persistence/        — Capa de acceso a datos
+│   ├── xgb_fraude.json         — Modelo XGBoost exportado
+│   └── model_metadata.json     — Metadatos del modelo (features, encoders)
+├── sentinel/                   — Dashboard Next.js
+│   ├── app/                    — Rutas y páginas
+│   ├── components/             — Componentes reutilizables
+│   └── lib/                    — Utilidades, queries, tipos, agente IA
+└── docs/                       — Documentación técnica completa
+```
+
+---
+
+## Verificación de Funcionamiento
+
+```bash
+# Estado de contenedores
+docker compose ps
+
+# Logs del pipeline en tiempo real
+docker compose logs fraud-listener --tail=50 -f
+
+# Health check del API
+curl http://localhost:8001/health
+
+# Acceso al dashboard (local)
+open http://localhost:8093
+```
+
+---
+
+*Figueroa, Valarezo & Piedra — 2025*

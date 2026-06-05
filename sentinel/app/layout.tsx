@@ -27,6 +27,12 @@ export const metadata: Metadata = {
     "Dashboard enterprise para analistas de la Unidad Antifraude. Visualiza el resultado del pipeline antifraude híbrido: reglas críticas, score heurístico y modelo ML.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

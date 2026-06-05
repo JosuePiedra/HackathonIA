@@ -2780,4 +2780,374 @@ a {
   .detail-grid {
     grid-template-columns: 1fr;
   }
+
+  .savings-card {
+    grid-template-columns: 1fr;
+  }
+
+  .agente-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .agente-side {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    max-height: 220px;
+    overflow: auto;
+  }
+
+  .casos-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    height: auto;
+    min-height: 0;
+  }
+
+  .filters {
+    height: auto;
+    max-height: 240px;
+    overflow: auto;
+  }
+}
+
+/* ============================
+   MOBILE (≤ 768px)
+   ============================ */
+@media (max-width: 768px) {
+
+  /* App shell: full-width, bottom nav */
+  .app-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+  }
+
+  .main {
+    padding-bottom: 64px;
+  }
+
+  /* Sidebar → bottom tab bar */
+  .sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    height: auto;
+    flex-direction: row;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    padding: 6px 2px env(safe-area-inset-bottom, 0px);
+    z-index: 50;
+    overflow: visible;
+  }
+
+  .sidebar-logo,
+  .sidebar-subtitle,
+  .sidebar-footer {
+    display: none;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    justify-content: space-around;
+    flex: 1;
+    gap: 0;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-item {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 6px 4px;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    flex: 1;
+    min-width: 44px;
+    font-size: 9px;
+  }
+
+  .nav-item.active {
+    border-left-color: transparent;
+    border-bottom-color: var(--accent);
+  }
+
+  /* Show icon + small label on bottom nav */
+  .nav-item svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .nav-item span:not(.badge-count):not(.live-dot) {
+    font-size: 9px;
+    max-width: 52px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nav-item .live-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    margin-left: 0;
+  }
+
+  .nav-item .badge-count {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    margin-left: 0;
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+
+  /* Topbar */
+  .topbar {
+    padding: 0 12px;
+    height: 48px;
+    gap: 8px;
+  }
+
+  .search-box {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .breadcrumb > span:first-child,
+  .breadcrumb .sep:first-of-type {
+    display: none;
+  }
+
+  /* Page padding */
+  .page {
+    padding: 14px 12px;
+  }
+
+  /* KPI grid: 2 columns */
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .kpi-value {
+    font-size: 20px;
+  }
+
+  .kpi {
+    min-height: 80px;
+    padding: 12px;
+  }
+
+  /* Detail */
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-title {
+    font-size: 18px;
+  }
+
+  .detail-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .score-final {
+    font-size: 48px;
+  }
+
+  /* Data grid: 2 columns */
+  .data-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 12px;
+  }
+
+  /* Amounts table: 1 column */
+  .amounts-table {
+    grid-template-columns: 1fr;
+  }
+
+  .amounts-table .cell:nth-child(3n) {
+    border-right: 1px solid var(--border);
+  }
+
+  /* Node / proveedor panels: full width */
+  .node-panel {
+    width: 100%;
+  }
+
+  .proveedor-panel-detail {
+    width: 100%;
+  }
+
+  /* Chat bubbles: wider */
+  .bubble,
+  .bubble-wrap {
+    max-width: 90%;
+  }
+
+  /* Inicio */
+  .inicio-heading {
+    font-size: 44px;
+  }
+
+  .inicio-sub {
+    font-size: 15px;
+  }
+
+  .inicio-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inicio-screen {
+    padding: 24px 16px;
+  }
+
+  /* Cases toolbar wrapping */
+  .cases-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    height: auto;
+    padding: 10px 12px;
+  }
+
+  /* Pagination */
+  .pagination {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  /* Graph header */
+  .graph-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .graph-legend {
+    display: none;
+  }
+
+  /* ---- AGENTE / BOT ---- */
+
+  /* Suggestions panel: compact strip instead of tall sidebar */
+  .agente-side {
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 6px 12px 4px;
+    gap: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Hide section labels and context stats on mobile */
+  .agente-side h3,
+  .agente-side h4,
+  .context-block {
+    display: none !important;
+  }
+
+  /* Convert suggestion lists from vertical to horizontal scroll strips */
+  .agente-side > div:not(.context-block) {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    gap: 6px !important;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .agente-side > div:not(.context-block)::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Chips: shrink-proof, horizontal */
+  .suggestion-chip {
+    flex-shrink: 0 !important;
+    min-width: max-content;
+    padding: 6px 10px;
+    font-size: 11px;
+    margin-bottom: 0 !important;
+  }
+
+  /* Chat scroll: tighter padding */
+  .chat-scroll {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  /* Chat input area */
+  .chat-input-area {
+    padding: 8px 12px 12px;
+  }
+
+  .chat-input-row {
+    padding: 2px 4px 2px 12px;
+  }
+
+  /* font-size 16px: prevents iOS Safari auto-zoom on focus */
+  .chat-input-row input {
+    font-size: 16px;
+    padding: 10px 0;
+  }
+
+  /* Bigger touch target for send button */
+  .chat-send {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  /* Disclaimer: stack items on narrow screens */
+  .chat-disclaimer {
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+    font-size: 10px;
+  }
+}
+
+/* ============================
+   SMALL MOBILE (≤ 480px)
+   ============================ */
+@media (max-width: 480px) {
+
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .data-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inicio-heading {
+    font-size: 34px;
+  }
+
+  .topbar {
+    height: 44px;
+  }
+
+  /* Stack nav label below icon tighter */
+  .nav-item span:not(.badge-count):not(.live-dot) {
+    display: none;
+  }
 }
