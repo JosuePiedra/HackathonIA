@@ -47,7 +47,7 @@ function AgenteContent() {
           </div>
           <div className="ctx-row">
             <span>score heurístico prom.</span>
-            <span className="v">{stats.score_heuristico_promedio}</span>
+            <span className="v">{Number(stats.score_heuristico_promedio).toFixed(2)}</span>
           </div>
         </div>
 
