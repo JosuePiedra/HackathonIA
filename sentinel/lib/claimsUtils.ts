@@ -28,15 +28,15 @@ export function computeStats(claims: SiniestroCompleto[]): ClaimsStats {
     sinScore,
     score_final_promedio:
       scored.length > 0
-        ? scored.reduce((s, c) => s + (c.score_final ?? 0), 0) / scored.length
+        ? Math.round(scored.reduce((s, c) => s + (c.score_final ?? 0), 0) / scored.length * 100) / 100
         : 0,
     score_heuristico_promedio:
       scored.length > 0
-        ? scored.reduce((s, c) => s + (c.score_heuristico ?? 0), 0) / scored.length
+        ? Math.round(scored.reduce((s, c) => s + (c.score_heuristico ?? 0), 0) / scored.length * 100) / 100
         : 0,
     probabilidad_ml_promedio:
       scored.length > 0
-        ? scored.reduce((s, c) => s + (c.probabilidad_ml ?? 0), 0) / scored.length
+        ? Math.round(scored.reduce((s, c) => s + (c.probabilidad_ml ?? 0), 0) / scored.length * 100) / 100
         : 0,
     monto_total,
     monto_rojo,
